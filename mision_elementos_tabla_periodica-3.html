@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Misión Elementos 🧪</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:linear-gradient(135deg,#dff6ff,#f4e7ff);color:#20253a}
+.container{max-width:1050px;margin:auto;padding:22px}
+.card{background:#fff;border-radius:24px;padding:25px;box-shadow:0 10px 30px #0001;margin-bottom:20px}
+h1{text-align:center;font-size:2.4rem;margin:5px 0;color:#553c9a}
+.subtitle{text-align:center;margin-top:0;color:#667085}
+button{border:0;border-radius:14px;padding:13px 18px;font-size:1rem;font-weight:700;cursor:pointer;background:#6c4cc2;color:white;transition:.2s}
+button:hover{transform:translateY(-2px);filter:brightness(1.05)}
+button.secondary{background:#eef0f7;color:#34384c}
+.hidden{display:none!important}
+.stats{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:15px 0}
+.stat{background:#f4f0ff;border-radius:15px;padding:10px 16px;font-weight:700}
+.menu{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px;margin-top:25px}
+.menu button{min-height:90px;font-size:1.05rem}
+.progress{height:12px;background:#eee;border-radius:99px;overflow:hidden;margin:15px 0}
+.bar{height:100%;width:0;background:#6c4cc2;transition:.3s}
+.question{font-size:1.35rem;font-weight:700;text-align:center;margin:22px 0}
+.answers{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.answers button{background:#f6f7fb;color:#262b40;border:2px solid #e7e9f2}
+.answers button.correct{background:#d8f8e5;border-color:#29a45b;color:#176b3a}
+.answers button.wrong{background:#ffe0e0;border-color:#d83a3a;color:#8b1e1e}
+.feedback{text-align:center;min-height:35px;font-weight:700;margin:15px}
+.periodic{display:grid;grid-template-columns:repeat(18,1fr);gap:5px;overflow-x:auto;padding:10px}
+.element{min-width:50px;min-height:58px;border-radius:9px;padding:4px;text-align:center;cursor:pointer;border:2px solid transparent}
+.element:hover{transform:scale(1.06)}
+.element .num{font-size:.62rem;opacity:.7}.element .sym{font-size:1.2rem;font-weight:800}.element .name{font-size:.52rem;white-space:nowrap;overflow:hidden}
+.alkali{background:#ffd6d6}.alkaline{background:#ffe8c2}.transition{background:#ffeab5}.post{background:#d8f0ff}.metalloid{background:#d9f7d6}.nonmetal{background:#d9efff}.halogen{background:#eadcff}.noble{background:#f4d7ff}.lanth{background:#d7f3e8}.act{background:#f7d7ed}
+.periodic .empty{min-height:58px}
+.info{text-align:center;background:#f8f8ff;border-radius:16px;padding:18px;margin-top:15px;min-height:70px}
+.back{margin-bottom:10px}
+.big{font-size:2.7rem;font-weight:900;color:#6c4cc2}
+.badge{display:inline-block;background:#ffe38a;padding:7px 12px;border-radius:99px;font-weight:800;margin:5px}
+.footer{text-align:center;color:#777;font-size:.85rem}
+@media(max-width:650px){h1{font-size:1.9rem}.container{padding:12px}.periodic{grid-template-columns:repeat(18,50px)}}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="card" id="home">
+    <h1>🧪 Misión Elementos</h1>
+    <p class="subtitle">Aprende la tabla periódica jugando</p>
+    <div class="stats">
+      <div class="stat">⭐ Récord: <span id="record">0</span></div>
+      <div class="stat">🏅 Nivel: <span id="level">1</span></div>
+    </div>
+    <div class="menu">
+      <button onclick="startQuiz('symbol')">🔤 Símbolo secreto<br><small>¿Qué elemento es?</small></button>
+      <button onclick="startQuiz('number')">🔢 Número atómico<br><small>Encuentra el elemento</small></button>
+      <button onclick="startQuiz('group')">🧩 Clasifica<br><small>Metal, no metal o gas noble</small></button>
+      <button onclick="startQuiz('mixed')">⚡ Desafío mixto<br><small>Todo combinado</small></button>
+      <button onclick="showTable()">📚 Explorar tabla<br><small>Consulta los elementos</small></button>
+    </div>
+  </div>
+
+  <div class="card hidden" id="game">
+    <button class="secondary back" onclick="goHome()">← Menú</button>
+    <div class="stats">
+      <div class="stat">⭐ Puntos: <span id="score">0</span></div>
+      <div class="stat">❤️ Vidas: <span id="lives">3</span></div>
+      <div class="stat">❓ Pregunta: <span id="qnum">1</span>/10</div>
+    </div>
+    <div class="progress"><div class="bar" id="bar"></div></div>
+    <div class="question" id="question"></div>
+    <div class="answers" id="answers"></div>
+    <div class="feedback" id="feedback"></div>
+    <button id="next" class="hidden" onclick="nextQuestion()">Siguiente ➜</button>
+  </div>
+
+  <div class="card hidden" id="table">
+    <button class="secondary back" onclick="goHome()">← Menú</button>
+    <h2>📚 Tabla periódica interactiva</h2>
+    <p>Haz clic en cualquier elemento para conocer su información.</p>
+    <div class="periodic" id="periodic"></div>
+    <div class="info" id="elementInfo">Selecciona un elemento.</div>
+  </div>
+
+  <div class="card hidden" id="result">
+    <h2 style="text-align:center">🎉 ¡Misión completada!</h2>
+    <p style="text-align:center">Tu puntuación:</p>
+    <div class="big" style="text-align:center" id="finalScore">0</div>
+    <p style="text-align:center" id="resultText"></p>
+    <div style="text-align:center"><button onclick="goHome()">🏠 Volver al menú</button></div>
+  </div>
+  <div class="footer">Misión Elementos • Aprende, juega y descubre 🧪</div>
+</div>
+
+<script>
+const elements=[
+["H","Hidrógeno",1,"No metal","nonmetal",1,1],["He","Helio",2,"Gas noble","noble",18,1],
+["Li","Litio",3,"Metal alcalino","alkali",1,2],["Be","Berilio",4,"Metal alcalinotérreo","alkaline",2,2],
+["B","Boro",5,"Metaloide","metalloid",13,2],["C","Carbono",6,"No metal","nonmetal",14,2],["N","Nitrógeno",7,"No metal","nonmetal",15,2],["O","Oxígeno",8,"No metal","nonmetal",16,2],["F","Flúor",9,"Halógeno","halogen",17,2],["Ne","Neón",10,"Gas noble","noble",18,2],
+["Na","Sodio",11,"Metal alcalino","alkali",1,3],["Mg","Magnesio",12,"Metal alcalinotérreo","alkaline",2,3],["Al","Aluminio",13,"Metal","post",13,3],["Si","Silicio",14,"Metaloide","metalloid",14,3],["P","Fósforo",15,"No metal","nonmetal",15,3],["S","Azufre",16,"No metal","nonmetal",16,3],["Cl","Cloro",17,"Halógeno","halogen",17,3],["Ar","Argón",18,"Gas noble","noble",18,3],
+["K","Potasio",19,"Metal alcalino","alkali",1,4],["Ca","Calcio",20,"Metal alcalinotérreo","alkaline",2,4],["Sc","Escandio",21,"Metal de transición","transition",3,4],["Ti","Titanio",22,"Metal de transición","transition",4,4],["V","Vanadio",23,"Metal de transición","transition",5,4],["Cr","Cromo",24,"Metal de transición","transition",6,4],["Mn","Manganeso",25,"Metal de transición","transition",7,4],["Fe","Hierro",26,"Metal de transición","transition",8,4],["Co","Cobalto",27,"Metal de transición","transition",9,4],["Ni","Níquel",28,"Metal de transición","transition",10,4],["Cu","Cobre",29,"Metal de transición","transition",11,4],["Zn","Zinc",30,"Metal de transición","transition",12,4],["Ga","Galio",31,"Metal","post",13,4],["Ge","Germanio",32,"Metaloide","metalloid",14,4],["As","Arsénico",33,"Metaloide","metalloid",15,4],["Se","Selenio",34,"No metal","nonmetal",16,4],["Br","Bromo",35,"Halógeno","halogen",17,4],["Kr","Kriptón",36,"Gas noble","noble",18,4],
+["Rb","Rubidio",37,"Metal alcalino","alkali",1,5],["Sr","Estroncio",38,"Metal alcalinotérreo","alkaline",2,5],["Y","Itrio",39,"Metal de transición","transition",3,5],["Zr","Circonio",40,"Metal de transición","transition",4,5],["Nb","Niobio",41,"Metal de transición","transition",5,5],["Mo","Molibdeno",42,"Metal de transición","transition",6,5],["Tc","Tecnecio",43,"Metal de transición","transition",7,5],["Ru","Rutenio",44,"Metal de transición","transition",8,5],["Rh","Rodio",45,"Metal de transición","transition",9,5],["Pd","Paladio",46,"Metal de transición","transition",10,5],["Ag","Plata",47,"Metal de transición","transition",11,5],["Cd","Cadmio",48,"Metal de transición","transition",12,5],["In","Indio",49,"Metal","post",13,5],["Sn","Estaño",50,"Metal","post",14,5],["Sb","Antimonio",51,"Metaloide","metalloid",15,5],["Te","Telurio",52,"Metaloide","metalloid",16,5],["I","Yodo",53,"Halógeno","halogen",17,5],["Xe","Xenón",54,"Gas noble","noble",18,5],
+["Cs","Cesio",55,"Metal alcalino","alkali",1,6],["Ba","Bario",56,"Metal alcalinotérreo","alkaline",2,6],["La","Lantano",57,"Lantánido","lanth",3,6],["Hf","Hafnio",72,"Metal de transición","transition",4,6],["Ta","Tantalio",73,"Metal de transición","transition",5,6],["W","Wolframio",74,"Metal de transición","transition",6,6],["Re","Renio",75,"Metal de transición","transition",7,6],["Os","Osmio",76,"Metal de transición","transition",8,6],["Ir","Iridio",77,"Metal de transición","transition",9,6],["Pt","Platino",78,"Metal de transición","transition",10,6],["Au","Oro",79,"Metal de transición","transition",11,6],["Hg","Mercurio",80,"Metal de transición","transition",12,6],["Tl","Talio",81,"Metal","post",13,6],["Pb","Plomo",82,"Metal","post",14,6],["Bi","Bismuto",83,"Metal","post",15,6],["Po","Polonio",84,"Metal","post",16,6],["At","Astato",85,"Halógeno","halogen",17,6],["Rn","Radón",86,"Gas noble","noble",18,6],
+["Fr","Francio",87,"Metal alcalino","alkali",1,7],["Ra","Radio",88,"Metal alcalinotérreo","alkaline",2,7],["Ac","Actinio",89,"Actínido","act",3,7],["Rf","Rutherfordio",104,"Metal de transición","transition",4,7],["Db","Dubnio",105,"Metal de transición","transition",5,7],["Sg","Seaborgio",106,"Metal de transición","transition",6,7],["Bh","Bohrio",107,"Metal de transición","transition",7,7],["Hs","Hassio",108,"Metal de transición","transition",8,7],["Mt","Meitnerio",109,"Metal de transición","transition",9,7],["Ds","Darmstadtio",110,"Metal de transición","transition",10,7],["Rg","Roentgenio",111,"Metal de transición","transition",11,7],["Cn","Copernicio",112,"Metal de transición","transition",12,7],["Nh","Nihonio",113,"Metal","post",13,7],["Fl","Flerovio",114,"Metal","post",14,7],["Mc","Moscovio",115,"Metal","post",15,7],["Lv","Livermorio",116,"Metal","post",16,7],["Ts","Tenesino",117,"Halógeno","halogen",17,7],["Og","Oganesón",118,"Gas noble","noble",18,7],
+["Ce","Cerio",58,"Lantánido","lanth",4,8],["Pr","Praseodimio",59,"Lantánido","lanth",5,8],["Nd","Neodimio",60,"Lantánido","lanth",6,8],["Pm","Prometio",61,"Lantánido","lanth",7,8],["Sm","Samario",62,"Lantánido","lanth",8,8],["Eu","Europio",63,"Lantánido","lanth",9,8],["Gd","Gadolinio",64,"Lantánido","lanth",10,8],["Tb","Terbio",65,"Lantánido","lanth",11,8],["Dy","Disprosio",66,"Lantánido","lanth",12,8],["Ho","Holmio",67,"Lantánido","lanth",13,8],["Er","Erbio",68,"Lantánido","lanth",14,8],["Tm","Tulio",69,"Lantánido","lanth",15,8],["Yb","Iterbio",70,"Lantánido","lanth",16,8],["Lu","Lutecio",71,"Lantánido","lanth",17,8],
+["Th","Torio",90,"Actínido","act",4,9],["Pa","Protactinio",91,"Actínido","act",5,9],["U","Uranio",92,"Actínido","act",6,9],["Np","Neptunio",93,"Actínido","act",7,9],["Pu","Plutonio",94,"Actínido","act",8,9],["Am","Americio",95,"Actínido","act",9,9],["Cm","Curio",96,"Actínido","act",10,9],["Bk","Berkelio",97,"Actínido","act",11,9],["Cf","Californio",98,"Actínido","act",12,9],["Es","Einsteinio",99,"Actínido","act",13,9],["Fm","Fermio",100,"Actínido","act",14,9],["Md","Mendelevio",101,"Actínido","act",15,9],["No","Nobelio",102,"Actínido","act",16,9],["Lr","Lawrencio",103,"Actínido","act",17,9]
+];
+
+let mode="", score=0,lives=3,q=0,current=null,answered=false;
+let record=Number(localStorage.getItem("misionRecord")||0);
+document.getElementById("record").textContent=record;
+document.getElementById("level").textContent=Math.max(1,Math.floor(record/100)+1);
+
+function show(id){["home","game","table","result"].forEach(x=>document.getElementById(x).classList.toggle("hidden",x!==id))}
+function goHome(){show("home")}
+function startQuiz(m){mode=m;score=0;lives=3;q=0;show("game");nextQuestion()}
+function shuffle(a){return [...a].sort(()=>Math.random()-.5)}
+function pick(){return elements[Math.floor(Math.random()*elements.length)]}
+function makeOptions(correct, field){
+  let pool=shuffle(elements.filter(e=>e!==correct)).slice(0,3);
+  return shuffle([correct,...pool]).map(e=>e[field]);
+}
+function nextQuestion(){
+  if(lives<=0||q>=10){finish();return}
+  q++;answered=false;document.getElementById("next").classList.add("hidden");
+  document.getElementById("feedback").textContent="";
+  current=pick();
+  let question="", opts=[];
+  if(mode==="symbol"){question=`¿Qué elemento tiene el símbolo <b>${current[0]}</b>?`;opts=makeOptions(current,1)}
+  else if(mode==="number"){question=`¿Qué elemento tiene el número atómico <b>${current[2]}</b>?`;opts=makeOptions(current,1)}
+  else if(mode==="group"){question=`¿A qué grupo pertenece <b>${current[1]}</b>?`;opts=makeOptions(current,3)}
+  else{
+    const t=Math.floor(Math.random()*3);
+    if(t===0){question=`¿Qué elemento tiene el símbolo <b>${current[0]}</b>?`;opts=makeOptions(current,1)}
+    if(t===1){question=`¿Cuál es el número atómico de <b>${current[1]}</b>?`;opts=makeOptions(current,2)}
+    if(t===2){question=`¿Cuál es la categoría de <b>${current[1]}</b>?`;opts=makeOptions(current,3)}
+  }
+  document.getElementById("question").innerHTML=question;
+  const box=document.getElementById("answers");box.innerHTML="";
+  opts.forEach((opt,i)=>{
+    const b=document.createElement("button");b.textContent=opt;b.onclick=()=>answer(opt,b);box.appendChild(b)
+  });
+  document.getElementById("qnum").textContent=q;
+  document.getElementById("bar").style.width=((q-1)/10*100)+"%";
+}
+function answer(opt,btn){
+  if(answered)return;answered=true;
+  const correct= mode==="group" ? current[3] : (mode==="number" ? String(current[1]) : (mode==="mixed" && false ? "" : current[1]));
+  // For mixed, infer correct option from the visible question.
+  let right;
+  const txt=document.getElementById("question").innerText;
+  if(txt.includes("número atómico")) right=String(current[2]);
+  else if(txt.includes("categoría")) right=current[3];
+  else right=current[1];
+  document.querySelectorAll(".answers button").forEach(b=>{if(b.textContent==right)b.classList.add("correct")});
+  if(String(opt)===String(right)){score+=10;document.getElementById("feedback").textContent="✅ ¡Correcto! +10 puntos";}
+  else{lives--;btn.classList.add("wrong");document.getElementById("feedback").textContent=`❌ Casi. La respuesta era ${right}.`;}
+  document.getElementById("score").textContent=score;document.getElementById("lives").textContent=lives;
+  document.getElementById("next").classList.remove("hidden");
+  document.getElementById("bar").style.width=(q/10*100)+"%";
+}
+function finish(){
+  show("result");document.getElementById("finalScore").textContent=score;
+  if(score>record){record=score;localStorage.setItem("misionRecord",record);document.getElementById("record").textContent=record}
+  document.getElementById("level").textContent=Math.max(1,Math.floor(record/100)+1);
+  document.getElementById("resultText").textContent=score>=90?"🌟 ¡Excelente! Dominas muchos elementos.":score>=60?"👏 ¡Muy bien! Sigue practicando.":"💪 ¡Buen intento! Cada partida te ayudará a aprender más.";
+}
+function showTable(){
+  show("table");const p=document.getElementById("periodic");p.innerHTML="";
+  const grid=Array.from({length:9},()=>Array(18).fill(null));
+  elements.forEach(e=>{grid[e[6]-1][e[5]-1]=e});
+  grid.forEach((row,r)=>row.forEach((e,c)=>{
+    if(e){const d=document.createElement("div");d.className="element "+e[4];d.innerHTML=`<div class="num">${e[2]}</div><div class="sym">${e[0]}</div><div class="name">${e[1]}</div>`;d.onclick=()=>showInfo(e);p.appendChild(d)}
+    else{const d=document.createElement("div");d.className="empty";p.appendChild(d)}
+  }));
+}
+function showInfo(e){
+ document.getElementById("elementInfo").innerHTML=`<span class="big">${e[0]}</span><br><b>${e[1]}</b> • Número atómico: <b>${e[2]}</b><br><span class="badge">${e[3]}</span> • Grupo ${e[5]}`;
+}
+</script>
+</body>
+</html>
